@@ -5,23 +5,30 @@ def parse_input(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
-    # Dicionário para armazenar os serviços com a lista de bombeiros para cada dia
-    servicos = {}
-    current_service = None
+    servicos = {"Incêndio": [], "Socorro": [], "Telefone": []}
 
-    for line in lines:
+    # Ignorar o cabeçalho
+    for line in lines[1:]:
         line = line.strip()
         if line:
-            if not line.startswith("DOM"):
-                # Identifica o serviço (ex: Incêndio, Socorro, Telefone)
-                current_service = line
-                servicos[current_service] = [[] for _ in range(7)]  # 7 dias da semana
-            else:
-                # Adiciona os nomes dos bombeiros ao serviço atual para cada dia da semana
-                bombeiros = line.split('_')
-                for i, bombeiro in enumerate(bombeiros):
-                    servicos[current_service][i].append(bombeiro)
-    
+            partes = line.split(',')
+            nome = partes[0].strip('_')  # Retira os underscores
+            incendios = int(partes[1])
+            socorros = int(partes[2])
+            telefones = int(partes[3])
+
+            # Adiciona o bombeiro ao serviço respectivo pelo número de vezes que ele pode ser escalado
+            servicos["Incêndio"].extend([nome] * incendios)
+            servicos["Socorro"].extend([nome] * socorros)
+            servicos["Telefone"].extend([nome] * telefones)
+
+    # Organiza as listas de bombeiros em grupos de 7 para representar os dias da semana
+    for service in servicos:
+        # Preenche com "vazio" se não houver 7 entradas para um serviço
+        while len(servicos[service]) % 7 != 0:
+            servicos[service].append("vazio")
+        servicos[service] = [servicos[service][i:i + 7] for i in range(0, len(servicos[service]), 7)]
+
     return servicos
 
 # Função para validar as restrições
@@ -30,7 +37,7 @@ def is_valid_assignment(servicos, assignment):
     
     for service, escala in assignment.items():
         for dia, bombeiro in enumerate(escala):
-            if bombeiro in dias[dia]:
+            if bombeiro in dias[dia] and bombeiro != "vazio":
                 return False  # O mesmo bombeiro foi escalado para dois serviços no mesmo dia
             dias[dia].add(bombeiro)
     
@@ -65,14 +72,19 @@ def solve_csp(servicos):
     
     return backtrack({})
 
-# Formatar a solução para salvar em um arquivo de saída
+# Formatar a solução para saída no formato desejado
 def format_solution(solution):
+    dias_semana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"]
     formatted_output = []
+
     for service, escala in solution.items():
         formatted_output.append(service)
-        for dia in zip(*escala):
-            formatted_output.append("_".join(dia))
+        formatted_output.append("______".join(dias_semana) + "______")
+        for linha in escala:
+            linha_formatada = "_".join([nome.ljust(8, '_') for nome in linha])
+            formatted_output.append(linha_formatada)
         formatted_output.append("")  # Linha em branco para separar serviços
+    
     return "\n".join(formatted_output)
 
 # Função para salvar a solução em um arquivo
