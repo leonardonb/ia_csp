@@ -1,6 +1,7 @@
 import random
 from collections import defaultdict
 
+
 def parse_input(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -28,6 +29,7 @@ def parse_input(file_path):
 
     return servicos, bombeiros
 
+
 def is_valid_assignment(assignment, bombeiros):
     dias = [set() for _ in range(7)]
     contagem_servicos = defaultdict(lambda: defaultdict(int))
@@ -47,6 +49,7 @@ def is_valid_assignment(assignment, bombeiros):
                 return False
 
     return True
+
 
 def solve_csp(servicos, bombeiros):
     def generate_initial_solution():
@@ -81,7 +84,7 @@ def solve_csp(servicos, bombeiros):
 
         return None
 
-    for _ in range(100):  # Número de tentativas para encontrar uma solução válida
+    for _ in range(1000):  # Número de tentativas para encontrar uma solução válida
         initial_solution = generate_initial_solution()
         if is_valid_assignment(initial_solution, bombeiros):
             improved_solution = improve_solution(initial_solution)
@@ -89,6 +92,7 @@ def solve_csp(servicos, bombeiros):
                 return improved_solution
 
     return None
+
 
 def format_solution(solution):
     dias_semana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"]
@@ -105,24 +109,33 @@ def format_solution(solution):
 
     return "\n".join(formatted_output)
 
+
 def save_solution(solution, output_file_path):
     formatted_output = format_solution(solution)
     with open(output_file_path, 'w') as file:
         file.write(formatted_output)
 
-def main():
-    entrada_path = 'entrada_1.txt'
-    saida_path = 'saida_gerada.txt'
+
+def calculate_all():
+    for i in range(1, 101):
+        main(i, False, 'resources/out/saida_gerada_{}.txt'.format(i))
+
+
+def main(num_file, print_console, saida_path):
+    entrada_path = 'resources/in/entrada_{}.txt'.format(num_file)
     
     servicos, bombeiros = parse_input(entrada_path)
     solution = solve_csp(servicos, bombeiros)
-    
+
     if solution:
-        print("Solução encontrada e salva em", saida_path)
-        print(format_solution(solution))
+        if print_console:
+            print("\nSolução encontrada e salva em", saida_path)
+            print(format_solution(solution))
         save_solution(solution, saida_path)
     else:
+        print("Arquivo: ", num_file)
         print("Nenhuma solução válida encontrada.")
 
-if __name__ == "__main__":
-    main()
+
+calculate_all()
+main(49, True, 'resources/saida_gerada.txt')
