@@ -51,43 +51,45 @@ def is_valid_assignment(assignment, bombeiros):
     return True
 
 
+def improve_solution(solution, servicos, bombeiros):
+    for _ in range(1000):  # Número de tentativas de melhoria
+        service = random.choice(list(servicos.keys()))
+        day = random.randint(0, 6)
+        bombeiro1 = random.choice(servicos[service])
+        bombeiro2 = random.choice(servicos[service])
+
+        old_assignment = solution[service][day]
+        solution[service][day] = [bombeiro1, bombeiro2]
+
+        if is_valid_assignment(solution, bombeiros):
+            return solution
+        else:
+            solution[service][day] = old_assignment
+
+    return None
+
+
+def generate_initial_solution(servicos):
+    solution = {service: [[] for _ in range(7)] for service in servicos.keys()}
+
+    for service, bombeiros_list in servicos.items():
+        random.shuffle(bombeiros_list)
+        index = 0
+        for bombeiro in bombeiros_list:
+            solution[service][index % 7].append(bombeiro)
+            index += 1
+        for dia in range(7):
+            while len(solution[service][dia]) < 2:
+                solution[service][dia].append("vazio")
+
+    return solution
+
+
 def solve_csp(servicos, bombeiros):
-    def generate_initial_solution():
-        solution = {service: [[] for _ in range(7)] for service in servicos.keys()}
-        
-        for service, bombeiros_list in servicos.items():
-            random.shuffle(bombeiros_list)
-            index = 0
-            for bombeiro in bombeiros_list:
-                solution[service][index % 7].append(bombeiro)
-                index += 1
-            for dia in range(7):
-                while len(solution[service][dia]) < 2:
-                    solution[service][dia].append("vazio")
-                    
-        return solution
-
-    def improve_solution(solution):
-        for _ in range(1000):  # Número de tentativas de melhoria
-            service = random.choice(list(servicos.keys()))
-            day = random.randint(0, 6)
-            bombeiro1 = random.choice(servicos[service])
-            bombeiro2 = random.choice(servicos[service])
-
-            old_assignment = solution[service][day]
-            solution[service][day] = [bombeiro1, bombeiro2]
-
-            if is_valid_assignment(solution, bombeiros):
-                return solution
-            else:
-                solution[service][day] = old_assignment
-
-        return None
-
     for _ in range(1000):  # Número de tentativas para encontrar uma solução válida
-        initial_solution = generate_initial_solution()
+        initial_solution = generate_initial_solution(servicos)
         if is_valid_assignment(initial_solution, bombeiros):
-            improved_solution = improve_solution(initial_solution)
+            improved_solution = improve_solution(initial_solution, servicos, bombeiros)
             if improved_solution:
                 return improved_solution
 
