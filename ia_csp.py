@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 
 def parse_input(file_path):
     with open(file_path, 'r') as file:
@@ -29,6 +30,7 @@ def parse_input(file_path):
 
 def is_valid_assignment(assignment, bombeiros):
     dias = [set() for _ in range(7)]
+    contagem_servicos = defaultdict(lambda: defaultdict(int))
 
     for service, escala in assignment.items():
         for dia in range(7):
@@ -37,18 +39,29 @@ def is_valid_assignment(assignment, bombeiros):
                     if bombeiro in dias[dia]:
                         return False
                     dias[dia].add(bombeiro)
+                    contagem_servicos[bombeiro][service] += 1
+
+    for bombeiro, servicos_realizados in contagem_servicos.items():
+        for servico, count in servicos_realizados.items():
+            if count > bombeiros[bombeiro][servico]:
+                return False
 
     return True
 
 def solve_csp(servicos, bombeiros):
     def generate_initial_solution():
-        solution = {}
+        solution = {service: [[] for _ in range(7)] for service in servicos.keys()}
+        
         for service, bombeiros_list in servicos.items():
             random.shuffle(bombeiros_list)
-            escala = [bombeiros_list[i:i+2] for i in range(0, len(bombeiros_list), 2)]
-            while len(escala) < 7:
-                escala.append(["vazio", "vazio"])
-            solution[service] = escala
+            index = 0
+            for bombeiro in bombeiros_list:
+                solution[service][index % 7].append(bombeiro)
+                index += 1
+            for dia in range(7):
+                while len(solution[service][dia]) < 2:
+                    solution[service][dia].append("vazio")
+                    
         return solution
 
     def improve_solution(solution):
