@@ -181,7 +181,7 @@ Como funciona:
 - Define os caminhos dos arquivos de entrada e saída.
 - Chama as funções para ler os dados, resolver o problema e salvar a solução. Se uma solução válida for encontrada, ela é exibida e salva; caso contrário, uma mensagem de erro é exibida.
 
-##📍  Conclusão
+## 📍  Conclusão
 
 Esse código implementa um algoritmo de satisfação de restrições para alocar bombeiros em diferentes serviços, garantindo que todas as restrições sejam respeitadas. Cada parte do código tem um papel específico na leitura dos dados, validação das alocações e formatação da saída.
 
